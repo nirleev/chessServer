@@ -1,0 +1,60 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.7'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'chess'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'com.google.code.gson:gson:2.8.9'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'commons-codec:commons-codec:1.15'
+	implementation 'io.igl:jwt_2.12:1.2.2'
+	implementation 'cc.duduhuo.util:digest-util:1.1.1'
+	implementation 'javax.websocket:javax.websocket-api:1.1'
+	implementation 'org.json:json:20211205'
+	implementation 'javax.xml.bind:jaxb-api:2.1'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+bootRun {
+	if(project.hasProperty('args')){
+		args project.args.split(',')
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+task release() {
+	dependsOn build
+	doLast {
+		def filePath = "build/libs/backend-" + version + ".jar"
+		def file = new File(filePath)
+		assert file.exists(): "Cannot find builded app under path: " + filePath + " try run \"./gradlew build\" first"
+
+		File releaseDir = new File("release");
+		releaseDir.mkdir()
+		GFileUtils.cleanDirectory(releaseDir);
+
+		copy {
+			from '.'
+			into 'release'
+		}
+
+		copy {
+			from filePath
+			into 'release'
+		}
+	}
+}
