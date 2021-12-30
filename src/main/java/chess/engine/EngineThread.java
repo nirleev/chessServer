@@ -49,7 +49,9 @@ class EngineThread extends Thread {
     /**
      * is this thread running
      */
-    private boolean running = true;
+    private boolean running = false;
+
+    private String info = null;
 
     /**
      * time in ms between two engine read/write operations
@@ -74,12 +76,12 @@ class EngineThread extends Thread {
      */
     @Override
     public void run() {
-        running = true;
-
-        debugLog("engine", "started");
-
         try {
             process = new ProcessBuilder(enginePath).start();
+
+            running = true;
+            info = "started";
+            debugLog("engine", "started");
 
             InputStream in = process.getInputStream();
             InputStreamReader inr = new InputStreamReader(in);
@@ -115,16 +117,19 @@ class EngineThread extends Thread {
                     writer.flush();
                 }
             }
-
             writer.close();
             reader.close();
             process.destroy();
         } catch (IOException e) {
-            e.printStackTrace();
+            running = false;
+            info = "not found";
+            debugLog("engine", info);
+            return;
         }
 
         running = false;
-        debugLog("engine", "stopped");
+        info = "stopped";
+        debugLog("engine", info);
     }
 
     /**
@@ -151,6 +156,10 @@ class EngineThread extends Thread {
      */
     public boolean isRunning() {
         return running;
+    }
+
+    public String getInfo(){
+        return info;
     }
 
     public boolean isDebug() {

@@ -22,12 +22,14 @@ public class EngineHandler {
      * Starts new engine thread. If there is any running engine then it will be stopped.
      * @param engine engine to start.
      */
-    public void startEngine(EngineModel engine) {
+    public boolean startEngine(EngineModel engine) {
         stopEngine();
         engineThread = new EngineThread(engine.getPath());
         engineThread.addListeners(observable);
         engineThread.setDebug(true);
         engineThread.start();
+
+        return waitForEngine();
     }
 
     /**
@@ -49,6 +51,14 @@ public class EngineHandler {
         return engineThread != null && engineThread.isRunning();
     }
 
+    public boolean waitForEngine(){
+        if(engineThread != null){
+            while(engineThread.getInfo() == null || engineThread.getInfo().equals("stopped")) {}
+            return engineThread.isRunning();
+        }
+        return false;
+    }
+
     /**
      * Pass {@code command} to engine.
      * @param command command to pass.
@@ -56,6 +66,7 @@ public class EngineHandler {
     public void processRawCommand(String command) {
         if (engineThread == null) {
             System.err.println("Cant process command, engine is null");
+            return;
         }
 
         engineThread.processRawCommand(command);
@@ -76,7 +87,6 @@ public class EngineHandler {
             setChanged();
             notifyObservers(output);
         }
-
     }
 }
 

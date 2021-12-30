@@ -3,6 +3,7 @@ package chess.server;
 import chess.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,9 +11,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ServerStatus {
-
-    @Autowired
-    private Constants constantsProperties;
 
     /**
      * currently logged user token.
@@ -24,10 +22,19 @@ public class ServerStatus {
      */
     private long lastUserActivity = 0;
 
+    private int HTTPStatus = HttpStatus.OK.value();
+
+    @Autowired
+    private final Constants constantsProperties;
+
+    public ServerStatus(Constants constantsProperties) {
+        this.constantsProperties = constantsProperties;
+    }
+
     /**
      * Checks if server is available for user with token {@code token} i.e. {@link #currentUserToken} is null, or
      * {@link #currentUserToken} equals {#code token} and {@link #lastUserActivity} was more then
-     * {@link Constants#MAX_USER_INACTIVE} ms ago.
+     * {@link Constants#getMAX_USER_INACTIVE()} ms ago.
      *
      * @param token token of user for which you want to check server availability
      * @return whether server is available for user, or not
@@ -41,13 +48,20 @@ public class ServerStatus {
 
         long maxUserInactive = constantsProperties.getMAX_USER_INACTIVE();
 
-
         if ((System.currentTimeMillis() - lastUserActivity) > maxUserInactive) {
             currentUserToken = null;
             return true;
         }
 
         return false;
+    }
+
+    public void updateServerStatus(int status){
+        this.HTTPStatus = status;
+    }
+
+    public int getServerStatus(){
+        return HTTPStatus;
     }
 
     /**
@@ -64,8 +78,10 @@ public class ServerStatus {
     /**
      * Should be called when user logs out.
      */
-    public void userLoggedOut() {
+    public String userLoggedOut() {
+
         currentUserToken = null;
+        return "Logged out";
     }
 
     public String getCurrentUserToken(){

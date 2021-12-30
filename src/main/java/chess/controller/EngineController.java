@@ -29,7 +29,13 @@ public class EngineController {
     String start(@RequestBody EngineModel engine) {
 
         engineHandler.startEngine(engine);
-        return String.format("Engine %s started", engine.getName());
+        boolean info = engineHandler.waitForEngine();
+
+        if(info){
+            return String.format("Engine %s started", engine.getName());
+        } else {
+            return String.format("Can't start engine %s", engine.getName());
+        }
     }
 
     /**
@@ -50,10 +56,13 @@ public class EngineController {
     @PostMapping(value = "/send", consumes=MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String send(@RequestBody MessageModel command) {
 
-        engineHandler.processRawCommand(command.getMsg());
-        return "Command sent";
+        if(engineHandler.isEngineRunning()){
+            engineHandler.processRawCommand(command.getMsg());
+            return "Command sent";
+        } else {
+            return "Engine is not running";
+        }
     }
-
 }
 
 
