@@ -55,10 +55,8 @@ public class AppConfig {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new JwtFilter(serverStatus(), constantsProperties()));
         registrationBean.setUrlPatterns(Arrays.asList(
-                "/user/add",
-                "/user/logout",
+                "/receiver/*",
                 "/engine/*",
-                "/server/*",
                 "/ws_engine"
         ));
         return registrationBean;

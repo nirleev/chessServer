@@ -21,7 +21,7 @@ public class Constants{
      * After this time without call to any API method logged user will be considered inactive.
      */
     @Value("${config.MAX_USER_INACTIVE}")
-    long MAX_USER_INACTIVE = 30*1000;
+    long MAX_USER_INACTIVE;
 
     public String getJWT_SECRET_KEY(){
         return JWT_SECRET_KEY;
