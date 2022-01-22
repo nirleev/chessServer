@@ -53,7 +53,9 @@ public class EngineHandler {
 
     public boolean waitForEngine(){
         if(engineThread != null){
+            debugLog("info", "waiting for engine status info");
             while(engineThread.getInfo() == null || engineThread.getInfo().equals("stopped")) {}
+            debugLog("info", "sending engine status info");
             return engineThread.isRunning();
         }
         return false;
@@ -87,6 +89,10 @@ public class EngineHandler {
             setChanged();
             notifyObservers(output);
         }
+    }
+
+    private void debugLog(String tag, String msg) {
+        System.out.println(String.format("[EngineHandler] %s : %s", tag, msg));
     }
 }
 

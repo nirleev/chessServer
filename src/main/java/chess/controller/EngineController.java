@@ -28,8 +28,7 @@ public class EngineController {
     public @ResponseBody
     String start(@RequestBody EngineModel engine) {
 
-        engineHandler.startEngine(engine);
-        boolean info = engineHandler.waitForEngine();
+        boolean info = engineHandler.startEngine(engine);
 
         if(info){
             return String.format("Engine %s started", engine.getName());
