@@ -1,5 +1,7 @@
 package chess.engine;
 
+import chess.server.ServerLogger;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,7 @@ class EngineThread extends Thread {
      */
     private List<EngineOutputListener> listeners = new ArrayList<>();
 
-    private boolean debug = true;
+    private final ServerLogger logger = new ServerLogger(this.getClass().getName(), true);
 
     /**
      * whether this thread should stop
@@ -81,7 +83,7 @@ class EngineThread extends Thread {
 
             running = true;
             info = "started";
-            debugLog("engine", "started");
+            logger.log("status", "Engine started");
 
             InputStream in = process.getInputStream();
             InputStreamReader inr = new InputStreamReader(in);
@@ -101,7 +103,7 @@ class EngineThread extends Thread {
                 String line;
                 if (reader.ready()) {
                     if ((line = reader.readLine()) != null) {
-                        debugLog("in", line);
+                        logger.log("in", line);
                         if (listeners != null) {
                             for (EngineOutputListener l :
                                     listeners) {
@@ -112,7 +114,7 @@ class EngineThread extends Thread {
                 }
 
                 if (output.size() > 0 && (line = output.remove()) != null) {
-                    debugLog("out", line);
+                    logger.log("out", line);
                     writer.append(line);
                     writer.flush();
                 }
@@ -123,13 +125,13 @@ class EngineThread extends Thread {
         } catch (IOException e) {
             running = false;
             info = "not found";
-            debugLog("engine", info);
+            logger.log("status", "Engine " + info);
             return;
         }
 
         running = false;
         info = "stopped";
-        debugLog("engine", info);
+        logger.log("status", "Engine " + info);
     }
 
     /**
@@ -162,17 +164,6 @@ class EngineThread extends Thread {
         return info;
     }
 
-    public boolean isDebug() {
-        return debug;
-    }
-
-    /**
-     * @param debug if this is true, then this thread will log all messages passed from and to engine.
-     */
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
-
     /**
      * Adds listener which will be notified after every engine output.
      *
@@ -180,12 +171,6 @@ class EngineThread extends Thread {
      */
     public void addListeners(EngineOutputListener listener) {
         this.listeners.add(listener);
-    }
-
-    private void debugLog(String tag, String msg) {
-        if (debug) {
-            System.out.println(String.format("[EngineThread] %s : %s", tag, msg));
-        }
     }
 
     public interface EngineOutputListener {
@@ -208,4 +193,3 @@ class EngineThread extends Thread {
         super.finalize();
     }
 }
-

@@ -1,8 +1,6 @@
 package chess.server;
 
 import chess.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +22,12 @@ public class ServerStatus {
 
     private int HTTPStatus = HttpStatus.OK.value();
 
-    @Autowired
     private final Constants constantsProperties;
+    private final ServerLogger logger;
 
     public ServerStatus(Constants constantsProperties) {
         this.constantsProperties = constantsProperties;
+        this.logger = new ServerLogger(this.getClass().getName(), constantsProperties.getLOG());
     }
 
     /**
@@ -40,9 +39,13 @@ public class ServerStatus {
      * @return whether server is available for user, or not
      */
     public boolean isServerAvailable(String token) {
-        if (currentUserToken == null) return true;
+        if (currentUserToken == null){
+            logger.log("available", "Current token is null");
+            return true;
+        }
 
         if (token.equals(currentUserToken)) {
+            logger.log("available", "Received request with active user token");
             return true;
         }
 
@@ -50,9 +53,11 @@ public class ServerStatus {
 
         if ((System.currentTimeMillis() - lastUserActivity) > maxUserInactive) {
             currentUserToken = null;
+            logger.log("available", "Current user was inactive");
             return true;
         }
 
+        logger.log("unavailable", "Server is busy");
         return false;
     }
 
@@ -79,7 +84,6 @@ public class ServerStatus {
      * Should be called when user logs out.
      */
     public String userLoggedOut() {
-
         currentUserToken = null;
         return "Logged out";
     }
@@ -87,4 +91,6 @@ public class ServerStatus {
     public String getCurrentUserToken(){
         return currentUserToken;
     }
+
+    public boolean getLogStatus() { return constantsProperties.getLOG(); }
 }

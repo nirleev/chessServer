@@ -1,6 +1,7 @@
 package chess.engine;
 
 import chess.model.EngineModel;
+import chess.server.ServerLogger;
 import org.springframework.stereotype.Component;
 
 import java.util.Observable;
@@ -15,8 +16,7 @@ public class EngineHandler {
 
     public final EngineObservable observable = new EngineObservable();
 
-    public EngineHandler() {
-    }
+    private final ServerLogger logger = new ServerLogger(this.getClass().getName(), true);
 
     /**
      * Starts new engine thread. If there is any running engine then it will be stopped.
@@ -26,7 +26,6 @@ public class EngineHandler {
         stopEngine();
         engineThread = new EngineThread(engine.getPath());
         engineThread.addListeners(observable);
-        engineThread.setDebug(true);
         engineThread.start();
 
         return waitForEngine();
@@ -53,9 +52,9 @@ public class EngineHandler {
 
     public boolean waitForEngine(){
         if(engineThread != null){
-            debugLog("info", "waiting for engine status info");
+            logger.log("info", "Waiting for engine status info");
             while(engineThread.getInfo() == null || engineThread.getInfo().equals("stopped")) {}
-            debugLog("info", "sending engine status info");
+            logger.log("info", "Sending engine status info");
             return engineThread.isRunning();
         }
         return false;
@@ -89,10 +88,6 @@ public class EngineHandler {
             setChanged();
             notifyObservers(output);
         }
-    }
-
-    private void debugLog(String tag, String msg) {
-        System.out.println(String.format("[EngineHandler] %s : %s", tag, msg));
     }
 }
 

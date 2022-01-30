@@ -5,7 +5,6 @@ plugins {
 }
 
 group = 'chess'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 repositories {
@@ -34,27 +33,4 @@ bootRun {
 
 test {
 	useJUnitPlatform()
-}
-
-task release() {
-	dependsOn build
-	doLast {
-		def filePath = "build/libs/backend-" + version + ".jar"
-		def file = new File(filePath)
-		assert file.exists(): "Cannot find builded app under path: " + filePath + " try run \"./gradlew build\" first"
-
-		File releaseDir = new File("release");
-		releaseDir.mkdir()
-		GFileUtils.cleanDirectory(releaseDir);
-
-		copy {
-			from '.'
-			into 'release'
-		}
-
-		copy {
-			from filePath
-			into 'release'
-		}
-	}
 }

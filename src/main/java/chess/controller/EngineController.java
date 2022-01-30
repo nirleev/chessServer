@@ -3,6 +3,7 @@ package chess.controller;
 import chess.engine.EngineHandler;
 import chess.model.EngineModel;
 import chess.model.MessageModel;
+import chess.server.ServerLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,8 @@ public class EngineController {
     @Autowired
     private EngineHandler engineHandler;
 
+    private final ServerLogger logger = new ServerLogger(this.getClass().getName(), true);
+
     /**
      * Starts engine with name
      * @param engine StartEngineModel with name of the engine that user wants to start.
@@ -28,11 +31,14 @@ public class EngineController {
     public @ResponseBody
     String start(@RequestBody EngineModel engine) {
 
+        logger.log("info", "Start engine request");
         boolean info = engineHandler.startEngine(engine);
 
         if(info){
+            logger.log("info", String.format("Engine %s started", engine.getName()));
             return String.format("Engine %s started", engine.getName());
         } else {
+            logger.log("info", String.format("Can't start engine %s", engine.getName()));
             return String.format("Can't start engine %s", engine.getName());
         }
     }
@@ -44,7 +50,9 @@ public class EngineController {
     @GetMapping(value = "/stop")
     public @ResponseBody String stop() {
 
+        logger.log("info", "Stop engine request");
         engineHandler.stopEngine();
+        logger.log("info", "Engine stopped");
         return "Engine stopped";
     }
 
@@ -59,6 +67,7 @@ public class EngineController {
             engineHandler.processRawCommand(command.getMsg());
             return "Command sent";
         } else {
+            logger.log("error", "Engine is not running - command ignored");
             return "Engine is not running";
         }
     }
