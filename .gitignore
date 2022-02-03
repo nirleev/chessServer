@@ -61,3 +61,4 @@ out/
 hs_err_pid*
 
 build/*
+log/*

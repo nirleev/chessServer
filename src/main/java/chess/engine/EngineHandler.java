@@ -53,7 +53,9 @@ public class EngineHandler {
     public boolean waitForEngine(){
         if(engineThread != null){
             logger.log("info", "Waiting for engine status info");
-            while(engineThread.getInfo() == null || engineThread.getInfo().equals("stopped")) {}
+            while(engineThread.getInfo() == null || engineThread.getInfo().equals("stopped")) {
+                logger.log("info", engineThread.getInfo());
+            }
             logger.log("info", "Sending engine status info");
             return engineThread.isRunning();
         }
